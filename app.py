@@ -1,4 +1,4 @@
-from flask import Flask, render_template,session, redirect, url_for,request
+from flask import Flask, render_template,session, redirect, url_for,request,json
 from db import get_db, close_db
 
 app = Flask(__name__)
@@ -18,6 +18,7 @@ PROJECT_SESSION_USER = 'user'
 @app.route('/view-email-notification', methods=['GET','POST'])
 def view_email_notification():
     cursor = get_db().cursor()
+    print(request.form)
     page = request.args.get('page', default=0, type=int)
     disp_rec = 10
     if page is not None and page >= 0:
@@ -78,6 +79,8 @@ def view_email_notification():
         search_status = request.form['search_status']
         Sql += f" AND EWD.status = '{search_status}' "
         count_query += f" AND EWD.status = '{search_status}' "
+    
+    Sql		+=	f" limit {start},{disp_rec}"
         
     cursor.execute(count_query)
     total_count = cursor.fetchone()['total_count']
@@ -98,8 +101,26 @@ def view_email_notification():
     company_qr = "select state_name,state_abbrev as state_id from tbl_states order by state_name asc"
     cursor.execute(company_qr)
     state_list = cursor.fetchall()
-    # Pass variables to the template
-    return render_template('notification/view_notification.html', SHOW_OPTION_PLAN_TYPE=SHOW_OPTION_PLAN_TYPE,page=page, start=start, disp_rec=disp_rec,event_list=event_list,carrier_list=carrier_list,state_list=state_list,planTypeList=SHOW_OPTION_PLAN_TYPE,total_recs=total_recs,result=result,template_plan_type=template_plan_type,selected_template=selected_template,selected_states=selected_states,selected_carrier=selected_carrier,search_status=search_status)
+    getevent_preview = f"""SELECT EL.event_name,EWD.event_id, carrier_code, plan_type, reminders_days, EWD.id as rule_id FROM tbl_email_templates as EWD left join event_list as EL ON EWD.event_id=EL.id 
+		WHERE 1 and EWD.status = 'Y' and template_type ='EMAIL'  ORDER BY  EWD.id DESC"""
+    cursor.execute(getevent_preview)
+    preview_events = cursor.fetchall()
+    processed_preview_events = []
+
+    for row in preview_events:
+        carrier_code = ' || ' + row['carrier_code'].strip() if  row['carrier_code'] and  row['carrier_code'].strip() else ''
+        plan_type = ' || ' + row['plan_type'].strip() if row['plan_type'] and row['plan_type'].strip() else ''
+
+        daysRhs = json.loads(row['reminders_days']) if row['reminders_days'] else None
+        days = ' || ' + daysRhs.get('1', '') + ' Day(s)' if isinstance(daysRhs, dict) else ''
+        event_name = row['event_name'] if row['event_name'] else ''
+        processed_preview_events.append({
+            'id': row['event_id'],
+            'event_name': row['event_name'],
+            'selected': row['event_id'] == selected_template,
+            'options': f'{event_name}{days}{carrier_code}{plan_type}'
+        })
+    return render_template('notification/view_notification.html', SHOW_OPTION_PLAN_TYPE=SHOW_OPTION_PLAN_TYPE,page=page, start=start, disp_rec=disp_rec,event_list=event_list,carrier_list=carrier_list,state_list=state_list,planTypeList=SHOW_OPTION_PLAN_TYPE,total_recs=total_recs,result=result,template_plan_type=template_plan_type,selected_template=selected_template,selected_states=selected_states,selected_carrier=selected_carrier,search_status=search_status,preview_events=processed_preview_events)
 
 if __name__ == '__main__':
     app.run(debug=True)

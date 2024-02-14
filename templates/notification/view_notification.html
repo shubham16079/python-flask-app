@@ -74,196 +74,186 @@
                             </div>
                         </div>
                     </form>
+                    <div class="box-header" style="margin-bottom:20px;">
+                        <h3 class="box-title">Preview E-Mail Notification</h3>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-lg-6 col-md-6 col-sm-12">
+                            <label for="exampleInputName2">Event Name <font class="red">*</font></label>
+                            <select id="template_name_preview" name="template_name_preview" class="form-control">
+                                <option value="">Select</option>
+
+                                {% for row in preview_events %}
+                                <option value="{{ row['id'] }}" {% if row['selected'] %} selected {% endif %}>
+                                    {{ row['options'] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2 col-sm-12">
+                            <label for="customer_id">Customer ID <font class="red">*</font></label>
+                            <input name="customer_id" id="customer_id" placeholder="Customer ID" value="" type="text"
+                                class=" form-control">
+                        </div>
+
+                        <div class="col-lg-2 col-md-2 col-sm-12" style="margin-bottom:25px;">
+                            <label for="exampleInputName2">&nbsp;</label>
+                            <div class="form-actions">
+                                <input type="button" id="sms_notification_preview" name="sms_notification_preview"
+                                    value="Preview" class="btn btn-info">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
     </section>
 
     {% if total_recs > 0 %}
-    <div class="box-body table-fixed-css no-padding">
-        <table class="table">
-            <thead>
-                <tr class='normalb datanoraps'>
-                    <th>#</th>
-                    <th>Event Name</th>
-                    <th>Category Name</th>
-                    <th>Carrier</th>
+            <div class="box-body table-fixed-css no-padding">
+                <table class="table">
+                    <thead>
+                        <tr class='normalb datanoraps'>
+                            <th>#</th>
+                            <th>Event Name</th>
+                            <th>Category Name</th>
+                            <th>Carrier</th>
 
-                    <th>Plan Type</th>
+                            <th>Plan Type</th>
 
-                    <th>State</th>
-                    <th>Schedule Type</th>
-                    <th>From E-mail</th>
-                    <th>BCC E-mail</th>
-                    <th>Status</th>
-                    <th>Created By </th>
-                    <th>Created Date</th>
-                    <th>Updated By</th>
-                    <th>Updated Date</th>
-                    <th>Action &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ruleVal in result %}
-                    {% set categoryName = '' %}
-                    {% if ruleVal['category_id'] %}
-                    {% set categoryName = 1 %}
-                    {% endif %}
-                    {% if categoryName and categoryName['statusCode'] == '00' %}
-                    {% set categoryName = categoryName['data']['category_name'] %}
-                    {% else %}
-                    {% set categoryName = '' %}
-                    {% endif %}
-                    {% set daysRs = 1 %}
-                    {% set status = 'Active' if ruleVal['status'] == 'Y' else 'Inactive' %}
-                    <tr>
-                        <td>{{ loop.index + start }}</td>
-                        <td>
-                            <nobr>&nbsp;testing</nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ categoryName }}</nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['carrier_code'] }}</nobr>
-                        </td>
+                            <th>State</th>
+                            <th>Schedule Type</th>
+                            <th>From E-mail</th>
+                            <th>BCC E-mail</th>
+                            <th>Status</th>
+                            <th>Created By </th>
+                            <th>Created Date</th>
+                            <th>Updated By</th>
+                            <th>Updated Date</th>
+                            <th>Action &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ruleVal in result %}
+                        {% set categoryName = '' %}
+                        {% if ruleVal['category_id'] %}
+                        {% set categoryName = 1 %}
+                        {% endif %}
+                        {% if categoryName and categoryName['statusCode'] == '00' %}
+                        {% set categoryName = categoryName['data']['category_name'] %}
+                        {% else %}
+                        {% set categoryName = '' %}
+                        {% endif %}
+                        {% set daysRs = 1 %}
+                        {% set status = 'Active' if ruleVal['status'] == 'Y' else 'Inactive' %}
+                        <tr>
+                            <td>{{ loop.index + start }}</td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['event_name'] }}</nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ categoryName }}</nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['carrier_code'] }}</nobr>
+                            </td>
 
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['plan_type'] }}</nobr>
-                        </td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['plan_type'] }}</nobr>
+                            </td>
 
-                        <td>
+                            <td>
 
-                            <nobr>{{ ruleVal['state']|replace(',', ', ')|wordwrap(10, '<br>')|safe }}</nobr>
-                        </td>
+                                <nobr> {% for state in ruleVal['state'] %}{{ state }}{% if loop.index % 30 == 0 %}<br>{% endif
+                                    %}
+                                    {% endfor %}</nobr>
+                            </td>
 
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['shedule_type'] }}</nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['from_email_address'] }}
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['shedule_type'] }}</nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['from_email_address'] }}
 
-                                &nbsp;<i class="fa fa-check-circle" aria-hidden="true" style="color:green"></i>
+                                    &nbsp;<i class="fa fa-check-circle" aria-hidden="true" style="color:green"></i>
 
-                                &nbsp;<i class="fa fa-times-circle" aria-hidden="true" style="color:red"></i>
+                                    &nbsp;<i class="fa fa-times-circle" aria-hidden="true" style="color:red"></i>
 
-                            </nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['bcc_email_address'] }}</nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ status }}</nobr>
-                        </td>
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['created_by'] }}</nobr>
-                        </td>
-                        <td>testing</td>
-                        <td>
-                            <nobr>&nbsp;{{ ruleVal['updated_by'] }}</nobr>
-                        </td>
-                        <td>testing2</td>
-                        <td class='last-col'>
-                            <nobr>&nbsp;<a href="javaScript:void(0);" class="notificationViewAction"
-                                    data-event="{{ ruleVal['event_id'] }}" data-id="{{ ruleVal['id'] }}"><span
-                                        class="glyphicon glyphicon-pencil" data-toggle="tooltip"
-                                        data-original-title="View/Edit"></span></a></nobr>
-                            <nobr>&nbsp;<a href="#" class="notificationViewAction2" data-event="{{ ruleVal['event_id'] }}"
-                                    data-id="{{ ruleVal['id'] }}"><span class="glyphicon glyphicon-folder-open"
-                                        data-toggle="tooltip" data-original-title="View Report"></span></a></nobr>
-                            {% if status == 'Active' %}
-                            <nobr>&nbsp;<a href="javaScript:void(0);" class="common_notification_preview"
-                                    data-event="{{ ruleVal['event_id'] }}" data-id="{{ ruleVal['id'] }}"><span
-                                        class="glyphicon glyphicon-eye-open" data-toggle="tooltip"
-                                        data-original-title="Preview"></span></a></nobr>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
+                                </nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['bcc_email_address'] }}</nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ status }}</nobr>
+                            </td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['created_by'] }}</nobr>
+                            </td>
+                            <td>testing</td>
+                            <td>
+                                <nobr>&nbsp;{{ ruleVal['updated_by'] }}</nobr>
+                            </td>
+                            <td>testing2</td>
+                            <td class='last-col'>
+                                <nobr>&nbsp;<a href="javaScript:void(0);" class="notificationViewAction"
+                                        data-event="{{ ruleVal['event_id'] }}" data-id="{{ ruleVal['id'] }}"><span
+                                            class="glyphicon glyphicon-pencil" data-toggle="tooltip"
+                                            data-original-title="View/Edit"></span></a></nobr>
+                                <nobr>&nbsp;<a href="#" class="notificationViewAction2" data-event="{{ ruleVal['event_id'] }}"
+                                        data-id="{{ ruleVal['id'] }}"><span class="glyphicon glyphicon-folder-open"
+                                            data-toggle="tooltip" data-original-title="View Report"></span></a></nobr>
+                                {% if status == 'Active' %}
+                                <nobr>&nbsp;<a href="javaScript:void(0);" class="common_notification_preview"
+                                        data-event="{{ ruleVal['event_id'] }}" data-id="{{ ruleVal['id'] }}"><span
+                                            class="glyphicon glyphicon-eye-open" data-toggle="tooltip"
+                                            data-original-title="Preview"></span></a></nobr>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-{# Pagination #}
-{% set num_rec = total_recs // disp_rec %}
-{% if not page %}
-{% set start = 1 %}
-{% elif page <= 5 %} {% set start=1 %} {% elif (page + 5) <=total_recs %} {% set start=page - 5 %} {% else %} {% set
-    start=total_recs - 10 %} {% endif %} {% if num_rec < 10 %} {% set show=num_rec %} {% elif num_rec> (start + 10) %}
-    {% set show = start + 10 %}
-    {% else %}
-    {% set show = num_rec %}
     {% endif %}
 
-    <div class="box-footer clearfix">
-        <ul class="pagination pagination-sm no-margin pull-right">
-            {% if page > 0 %}
-            {% set gt = page - 1 %}
-            {% endif %}
-            <li{% if page <=0 %} class="disabled" {% endif %}><a href="javascript:void(0)"
-                    onclick="goto1(0);return false;">First</a></li>
-                <li{% if page <=0 %} class="disabled" {% endif %}><a href="javascript:void(0)"
-                        onclick="goto1({{ gt }});return false;">&lt;&lt;Previous</a></li>
-                    {% set current_page = page + 1 %}
-                    {% for r in range(start, show + 1) %}
-                    {% if r == current_page %}
-                    <li class="active"><a href="javascript:void(0)" onclick="goto1({{ current_page }});return false;">{{
-                            r }}</a></li>
-                    {% else %}
-                    {% set p = r - 1 %}
-                    <li><a href="javascript:void(0)" onclick="goto1({{ p }});return false;">{{ r }}</a></li>
-                    {% endif %}
-                    {% endfor %}
-                    {% if num_rec > page + 1 %}
-                    {% set gt = page + 1 %}
-                    {% endif %}
-                    <li{% if num_rec <=page + 1 %} class="disabled" {% endif %}><a href="javascript:void(0)"
-                            onclick="goto1({{ gt }});return false;">Next&gt;&gt;</a></li>
-                        <li{% if num_rec <=page + 1 %} class="disabled" {% endif %}><a href="javascript:void(0)"
-                                onclick="goto1({{ num_rec - 1 }});return false;">Last</a></li>
-        </ul>
-    </div>
-    {% else %}
-    <table class="table">
-        <tr class="alert-danger">
-            <td colspan="5" align="center">No record found.</td>
-        </tr>
-    </table>
-    {% endif %}
+<script>
 
-    <script>
-
-        $(function () {
-            $('.multiselectwith').multiselect({
-                buttonWidth: '100%',
-                disableIfEmpty: true,
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true,
-                nonSelectedText: 'Select',
-                buttonTitle: function (options, select) {
-                    return '';
-                }
-            });
-            $('#state_list_search').multiselect({
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true,
-                enableClickableOptGroups: true,
-                buttonWidth: '100%',
-                disableIfEmpty: true,
-                nonSelectedText: 'Select'
-            });
-            $('#template_name').multiselect({
-                includeSelectAllOption: true,
-                enableCaseInsensitiveFiltering: true,
-                enableClickableOptGroups: true,
-                buttonWidth: '100%',
-                disableIfEmpty: true,
-                nonSelectedText: 'Select'
-            });
-            $('#search_status,#template_plan_type').select2({
-                minimumResultsForSearch: Infinity
-            });
+    $(function () {
+        $('.multiselectwith').multiselect({
+            buttonWidth: '100%',
+            disableIfEmpty: true,
+            includeSelectAllOption: true,
+            enableCaseInsensitiveFiltering: true,
+            nonSelectedText: 'Select',
+            buttonTitle: function (options, select) {
+                return '';
+            }
         });
-    </script>
-    {% endblock %}
+        $('#state_list_search').multiselect({
+            includeSelectAllOption: true,
+            enableCaseInsensitiveFiltering: true,
+            enableClickableOptGroups: true,
+            buttonWidth: '100%',
+            disableIfEmpty: true,
+            nonSelectedText: 'Select'
+        });
+        $('#template_name').multiselect({
+            includeSelectAllOption: true,
+            enableCaseInsensitiveFiltering: true,
+            enableClickableOptGroups: true,
+            buttonWidth: '100%',
+            disableIfEmpty: true,
+            nonSelectedText: 'Select'
+        });
+        $('#search_status,#template_plan_type').select2({
+            minimumResultsForSearch: Infinity
+        });
+    });
+    function goto1(page) {
+        document.frm1.page.value = page;
+        document.frm1.submit();
+    }
+</script>
+{% endblock %}
