@@ -18,8 +18,7 @@ PROJECT_SESSION_USER = 'user'
 @app.route('/view-email-notification', methods=['GET','POST'])
 def view_email_notification():
     cursor = get_db().cursor()
-    print(request.form)
-    page = request.args.get('page', default=0, type=int)
+    page = int(request.form['page']) if request.form['page'] else 0
     disp_rec = 10
     if page is not None and page >= 0:
         start = page * disp_rec

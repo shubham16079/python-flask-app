@@ -214,9 +214,59 @@
                     </tbody>
                 </table>
             </div>
+            {% set num_rec = ((total_recs / disp_rec) | round(0, 'ceil')) | int %}
+            {% set start = 1 %}
+
+            {% if not page %}
+                {% set start = 1 %}
+            {% elif page <= 5 %}
+                {% set start = 1 %}
+            {% elif (page + 5) <= total_recs %}
+                {% set start = (page - 5) %}
+            {% else %}
+                {% set start = total_recs - 10 %}
+            {% endif %}
+
+            {% if num_rec < 10 %}
+                {% set show = num_rec %}
+            {% elif num_rec > (start + 10) %}
+                {% set show = start + 10 %}
+            {% else %}
+                {% set show = num_rec %}
+            {% endif %}
+            <div class="box-footer clearfix">
+                <ul class="pagination pagination-sm no-margin pull-right">
+                    {% if page > 0 %}
+                        {% set gt = page - 1 %}
+                    {% endif %}
+                    <li {% if page <= 0 %}class="disabled"{% endif %}><a href="javascript:void(0)" onclick="goto1(0);return false;">First</a></li>
+                    <li {% if page <= 0 %}class="disabled"{% endif %}><a href="javascript:void(0)" onclick="goto1({{ gt }});return false;">&lt;&lt;Previous</a></li>
+                    {% set current_page = page + 1 %}
+        
+                    {% for r in range(start, show + 1) %}
+                        {% if r == current_page %}
+                            <li class="active"><a href="javascript:void(0)" onclick="goto1({{ current_page }});return false;">{{ r }}</a></li>
+                        {% else %}
+                            {% set p = r - 1 %}
+                            <li><a href="javascript:void(0)" onclick="goto1({{ p }});return false;">{{ r }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+        
+                    {% if num_rec > page + 1 %}
+                        {% set gt = page + 1 %}
+                    {% endif %}
+                    <li {% if num_rec <= page + 1 %}class="disabled"{% endif %}>
+                        <a href="javascript:void(0)" onclick="goto1({{ gt }});return false;">Next&gt;&gt;</a>
+                    </li>
+                    <li {% if num_rec <= page + 1 %}class="disabled"{% endif %}>
+                        <a href="javascript:void(0)" onclick="goto1({{ num_rec - 1 }});return false;">Last</a>
+                    </li>
+                </ul>
+            </div>
         </div>
 
     {% endif %}
+
 
 <script>
 
