@@ -1,1 +1,59 @@
-hello boss
+<script>    
+    $(document).on('click','#sms_notification_preview',function(){	
+
+        if(jQuery('#template_name_preview').val() !='')
+        {
+            if(jQuery('#customer_id').val() !='')
+            {
+                if(jQuery.isNumeric($('#customer_id').val()))
+                {
+                    var eventID		= jQuery('#template_name_preview').val();
+                    var ruleID		= jQuery('#template_name_preview_rule_id').val();
+
+                    var customer_id	= jQuery('#customer_id').val();
+                    
+                    //jQuery("#submitRuleNotifPreview").hide();
+                    jQuery(".error,.success").remove();
+                    jQuery(".ruleDataRs").html('');
+                    jQuery('#page_loader').show();	
+
+                    jQuery.ajax({
+                        method: "POST",
+                        url: "/csr/ajax",
+                        data: { tab: "emailNotification",action:"notificationPreview",rule_id:ruleID,eventID:eventID,customer_id:customer_id,notif_type:"EMAIL"},
+                        success:function(data){
+                            
+                            jQuery(".ruleDataRs" ).html( data.result);
+                            jQuery('#page_loader').hide();
+                            if(data.message=='success'){
+                                //jQuery("#submitRuleNotifPreview").show();
+                            }				
+                            jQuery('#responseModalRsPreview').modal("show");
+                        }
+                    });		
+                }
+                else
+                {
+                    alert('Only numeric values allowed!');
+                }
+            }
+            else
+            {
+                alert('Please enter customer ID!');
+                jQuery('#customer_id').focus();
+            }
+        }
+        else
+        {
+            alert('Please select event name!');
+            jQuery('#template_name_preview').focus();
+        }
+    });
+    jQuery(function() { 
+        jQuery("#template_name_preview").change(function(){ 
+            var element = jQuery(this).find('option:selected'); 
+            var myTag = element.attr("myTag"); 
+            jQuery('#template_name_preview_rule_id').val(myTag); 
+        }); 
+    }); 
+</script>
